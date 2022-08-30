@@ -23,10 +23,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@figma/plugin-typings@^1.24.0":
-  version "1.24.0"
-  resolved "https://registry.yarnpkg.com/@figma/plugin-typings/-/plugin-typings-1.24.0.tgz#4e57fa6acfbab24992acde8ca5355b76f2a5e947"
-  integrity sha512-KpEq/C1jMtNiO5yO1nVLn/cQhz4AHPzBfokwd93Z/4DYqJ2JR8z5jrGTt3SMNi2m0KsjND/D3wpxSofBm1WaBA==
+"@figma/plugin-typings@^1.50.0":
+  version "1.50.0"
+  resolved "https://registry.yarnpkg.com/@figma/plugin-typings/-/plugin-typings-1.50.0.tgz#1bc7de6639ff8a5525ac937c19241e2e4e925e96"
+  integrity sha512-ue1He4XimFEjY7eS7x6tBY6pyMp7zfVOjgStFioqKUxPPIz0gCFLmFUjR5g6fMrYJCqAMP5/Mjwq4Ks0vpe2sA==
 
 "@types/json-schema@^7.0.6":
   version "7.0.6"

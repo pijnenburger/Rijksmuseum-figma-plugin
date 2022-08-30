@@ -4,16 +4,37 @@ import '../styles/ui.css';
 declare function require(path: string): any;
 
 const App = ({}) => {
-    const textbox = React.useRef<HTMLInputElement>(undefined);
+    // const baseUrl =
+    //     'https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx';
 
-    const countRef = React.useCallback((element: HTMLInputElement) => {
-        if (element) element.value = '5';
-        textbox.current = element;
-    }, []);
+    // const fqMaker = '&involvedMaker=Rembrandt+van+Rijn';
+    // const fqImg = '&imgonly=true';
+    // const fqToppieces = '&toppieces=true';
 
-    const onCreate = () => {
-        const count = parseInt(textbox.current.value, 10);
-        parent.postMessage({pluginMessage: {type: 'create-rectangles', count}}, '*');
+    // const fetchUrl = baseUrl + fqMaker + fqImg + fqToppieces;
+    const fetchUrl = 'https://www.rijksmuseum.nl/api/nl/collection/SK-C-5/tiles?key=m6fzmvxx';
+
+    const onCreate = async () => {
+        let res = await fetch(fetchUrl);
+        let json = await res.json();
+        // let items = json.artObjects;
+        let items = json.levels[2].tiles;
+        let itemContainer = json.levels[2];
+
+        // console.log(fetchUrl);
+        // console.log(items);
+
+        // const count = 3;
+        parent.postMessage(
+            {
+                pluginMessage: {
+                    type: 'create-rectangles',
+                    items: JSON.stringify(items),
+                    itemContainer: JSON.stringify(itemContainer),
+                },
+            },
+            '*'
+        );
     };
 
     const onCancel = () => {
@@ -32,15 +53,10 @@ const App = ({}) => {
 
     return (
         <div>
-            <img src={require('../assets/logo.svg')} />
-            <h2>Rectangle Creator</h2>
-            <p>
-                Count: <input ref={countRef} />
-            </p>
             <button id="create" onClick={onCreate}>
-                Create
+                Give me some art
             </button>
-            <button onClick={onCancel}>Cancel</button>
+            {/* <button onClick={onCancel}>Cancel</button> */}
         </div>
     );
 };
