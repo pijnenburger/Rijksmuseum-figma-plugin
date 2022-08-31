@@ -1,6 +1,6 @@
 {
-    "name": "ArtyFarty Rijksmuseum",
-    "id": "00000000",
+    "name": "Art Gallery",
+    "id": "1146781921444949676",
     "api": "1.0.0",
     "main": "dist/code.js",
     "ui": "dist/ui.html",

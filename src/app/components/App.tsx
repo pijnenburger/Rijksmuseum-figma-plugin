@@ -1,28 +1,63 @@
 import * as React from 'react';
+import {Label, Select, Checkbox, Button} from 'react-figma-plugin-ds';
+import 'figma-plugin-ds/dist/figma-plugin-ds.css';
+import '../styles/ui.css';
 import '../styles/ui.css';
 
 declare function require(path: string): any;
 
 const App = ({}) => {
-    // const baseUrl =
-    //     'https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx';
-
-    // const fqMaker = '&involvedMaker=Rembrandt+van+Rijn';
-    // const fqImg = '&imgonly=true';
-    // const fqToppieces = '&toppieces=true';
-
-    // const fetchUrl = baseUrl + fqMaker + fqImg + fqToppieces;
-    const fetchUrl = 'https://www.rijksmuseum.nl/api/nl/collection/SK-C-5/tiles?key=m6fzmvxx';
+    const firstUrl =
+        'https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx&imgonly=true&toppieces=true&culture=en&ps=100';
+    console.log(firstUrl);
 
     const onCreate = async () => {
+        let randomNumber = Math.floor(Math.random() * 100);
+
+        let resFirst = await fetch(firstUrl);
+        let jsonFirst = await resFirst.json();
+
+        let collectionID = jsonFirst.artObjects[randomNumber].objectNumber;
+        let artworkTitle = jsonFirst.artObjects[randomNumber].longTitle;
+
+        const collectionUrl =
+            'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '?key=m6fzmvxx&culture=en';
+        console.log(collectionUrl);
+        let resSecond = await fetch(collectionUrl);
+        let jsonSecond = await resSecond.json();
+
+        let label = jsonSecond.artObject;
+
+        console.log(label);
+
+        const fetchUrl = 'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '/tiles?key=m6fzmvxx';
+
         let res = await fetch(fetchUrl);
         let json = await res.json();
-        // let items = json.artObjects;
-        let items = json.levels[2].tiles;
-        let itemContainer = json.levels[2];
 
-        // console.log(fetchUrl);
+        let results = json.levels.filter((obj) => {
+            return obj.name === 'z1';
+        });
+
+        const containerWidth = results[0].width;
+        const containerHeight = results[0].height;
+        const items = results[0].tiles;
         // console.log(items);
+        console.log(jsonSecond);
+
+        const maxX = Math.max.apply(
+            Math,
+            items.map(function (o: any) {
+                return o.x;
+            })
+        );
+        const maxY = Math.max.apply(
+            Math,
+            items.map(function (o: any) {
+                return o.y;
+            })
+        );
+        // console.log(maxX, maxY);
 
         // const count = 3;
         parent.postMessage(
@@ -30,33 +65,28 @@ const App = ({}) => {
                 pluginMessage: {
                     type: 'create-rectangles',
                     items: JSON.stringify(items),
-                    itemContainer: JSON.stringify(itemContainer),
+                    containerWidth: parseInt(containerWidth, 10),
+                    containerHeight: parseInt(containerHeight, 10),
+                    maxX,
+                    maxY,
+                    artworkTitle,
+                    label,
                 },
             },
             '*'
         );
     };
 
-    const onCancel = () => {
-        parent.postMessage({pluginMessage: {type: 'cancel'}}, '*');
-    };
-
-    React.useEffect(() => {
-        // This is how we read messages sent from the plugin controller
-        window.onmessage = (event) => {
-            const {type, message} = event.data.pluginMessage;
-            if (type === 'create-rectangles') {
-                console.log(`Figma Says: ${message}`);
-            }
-        };
-    }, []);
+    // const onCancel = () => {
+    //     parent.postMessage({pluginMessage: {type: 'cancel'}}, '*');
+    // };
 
     return (
-        <div>
-            <button id="create" onClick={onCreate}>
-                Give me some art
-            </button>
-            {/* <button onClick={onCancel}>Cancel</button> */}
+        <div className="form">
+            <Checkbox type="switch" label="Artwork caption" />
+            <Button className="primary-btn" onClick={onCreate}>
+                Create Art
+            </Button>
         </div>
     );
 };
