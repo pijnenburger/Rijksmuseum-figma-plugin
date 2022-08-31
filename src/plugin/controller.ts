@@ -1,20 +1,22 @@
 figma.showUI(__html__, {themeColors: true /* other options */});
+figma.ui.resize(300, 400);
 
 figma.ui.onmessage = async (msg) => {
-    if (msg.type === 'create-rectangles') {
+    if (msg.type === 'create') {
         const nodes = [];
         const items = JSON.parse(msg.items);
         const count = items.length;
         // console.log(items);
-        const size = 102.4;
+        const size = 128;
         figma.loadFontAsync({family: 'Inter', style: 'Regular'});
+        figma.loadFontAsync({family: 'Inter', style: 'Italic'});
         figma.loadFontAsync({family: 'Inter', style: 'Medium'});
         figma.loadFontAsync({family: 'Inter', style: 'Bold'});
 
         const container = figma.createFrame();
         container.fills = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}, opacity: 0}];
         figma.currentPage.appendChild(container);
-        container.resize(msg.containerWidth / 5, msg.containerHeight / 5);
+        container.resize(msg.containerWidth / (512 / size), msg.containerHeight / (512 / size));
         container.name = 'Artwork';
 
         for (let i = 0; i < count; i++) {
@@ -24,8 +26,6 @@ figma.ui.onmessage = async (msg) => {
 
             const imageInt = (await fetch(image).then((r) => r.arrayBuffer())) as Uint8Array;
             let imageHash = figma.createImage(new Uint8Array(imageInt)).hash;
-            // console.log(imageInt);
-            // console.log(imageHash);
 
             const frame = figma.createFrame();
             frame.fills = [
@@ -33,8 +33,8 @@ figma.ui.onmessage = async (msg) => {
                 {type: 'IMAGE', scaleMode: 'FILL', imageHash},
             ];
 
-            const finalWidth = msg.containerWidth / 5 - item.x * size;
-            const finalHeight = msg.containerHeight / 5 - item.y * size;
+            const finalWidth = msg.containerWidth / (512 / size) - item.x * size;
+            const finalHeight = msg.containerHeight / (512 / size) - item.y * size;
 
             let frameWidth = item.x === msg.maxX ? finalWidth : size;
             let frameHeight = item.y === msg.maxY ? finalHeight : size;
@@ -115,58 +115,54 @@ figma.ui.onmessage = async (msg) => {
         pictureFrame.appendChild(container);
         nodes.push(pictureFrame);
 
-        const caption = figma.createFrame();
-        caption.name = 'Caption';
-        caption.resize(320, 100);
-        caption.clipsContent = true;
-        caption.layoutMode = 'VERTICAL';
-        caption.layoutAlign = 'STRETCH';
-        caption.counterAxisSizingMode = 'FIXED';
-        caption.verticalPadding = 32;
-        caption.horizontalPadding = 32;
-        caption.itemSpacing = 12;
-        caption.x = 0;
-        caption.y = msg.containerHeight / 5 + 100;
+        if (msg.caption === true) {
+            const caption = figma.createFrame();
+            caption.name = 'Caption';
+            caption.resize(320, 100);
+            caption.clipsContent = true;
+            caption.layoutMode = 'VERTICAL';
+            caption.layoutAlign = 'STRETCH';
+            caption.counterAxisSizingMode = 'FIXED';
+            caption.verticalPadding = 32;
+            caption.horizontalPadding = 32;
+            caption.itemSpacing = 12;
+            caption.x = 0;
+            caption.y = msg.containerHeight / (512 / size) + 100;
 
-        const captionHeader = figma.createFrame();
-        captionHeader.name = 'captionHeader';
-        captionHeader.clipsContent = true;
-        captionHeader.layoutMode = 'VERTICAL';
-        captionHeader.layoutAlign = 'STRETCH';
-        captionHeader.counterAxisSizingMode = 'AUTO';
+            const captionHeader = figma.createFrame();
+            captionHeader.name = 'captionHeader';
+            captionHeader.clipsContent = true;
+            captionHeader.layoutMode = 'VERTICAL';
+            captionHeader.layoutAlign = 'STRETCH';
+            captionHeader.counterAxisSizingMode = 'AUTO';
 
-        const captionTitle = figma.createText();
-        captionTitle.fontName = {family: 'Inter', style: 'Bold'};
-        captionTitle.fontSize = 14;
-        captionTitle.layoutAlign = 'STRETCH';
-        captionTitle.characters = msg.label.label.title;
+            const captionTitle = figma.createText();
+            captionTitle.fontName = {family: 'Inter', style: 'Bold'};
+            captionTitle.fontSize = 14;
+            captionTitle.layoutAlign = 'STRETCH';
+            captionTitle.characters = msg.label.label.title;
 
-        const captionArtist = figma.createText();
-        captionArtist.fontSize = 14;
-        captionArtist.layoutAlign = 'STRETCH';
-        captionArtist.characters = msg.label.label.makerLine;
+            const captionArtist = figma.createText();
+            captionArtist.fontName = {family: 'Inter', style: 'Italic'};
+            captionArtist.fontSize = 12;
+            captionArtist.layoutAlign = 'STRETCH';
+            captionArtist.characters = msg.label.label.makerLine;
 
-        const captionText = figma.createText();
-        captionText.layoutAlign = 'STRETCH';
-        captionText.characters =
-            msg.label.plaqueDescriptionEnglish == null
-                ? msg.label.plaqueDescriptionDutch
-                : msg.label.plaqueDescriptionEnglish;
+            const captionText = figma.createText();
+            captionText.layoutAlign = 'STRETCH';
+            captionText.fontSize = 10;
+            captionText.characters =
+                msg.label.plaqueDescriptionEnglish == null
+                    ? msg.label.plaqueDescriptionDutch
+                    : msg.label.plaqueDescriptionEnglish;
 
-        captionHeader.appendChild(captionTitle);
-        captionHeader.appendChild(captionArtist);
-        caption.appendChild(captionHeader);
-        caption.appendChild(captionText);
-
-        figma.currentPage.selection = nodes;
+            captionHeader.appendChild(captionTitle);
+            captionHeader.appendChild(captionArtist);
+            caption.appendChild(captionHeader);
+            caption.appendChild(captionText);
+        } else figma.currentPage.selection = nodes;
         figma.viewport.scrollAndZoomIntoView(nodes);
-
-        // This is how figma responds back to the ui
-        figma.ui.postMessage({
-            type: 'create-rectangles',
-            message: `Created ${msg.count} Rectangles`,
-        });
+        figma.closePlugin();
     }
-
     figma.closePlugin();
 };

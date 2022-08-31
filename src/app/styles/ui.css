@@ -16,25 +16,172 @@ body {
     gap: 16px;
 }
 
-.primary-btn {
-    background-color: var(--figma-color-bg-brand);
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    /* background: lightgray; */
+}
+
+.label {
+    padding: 0;
+    margin: 0;
+    color: var(--figma-color-text-secondary);
+}
+
+.label-right {
+    padding: 0;
+    margin: 0;
+    text-align: right;
+    display: flex;
+    flex-direction: row-reverse;
+    color: var(--figma-color-text);
+}
+
+/* Inputs */
+
+.input {
+    display: block;
+    width: 100%;
+}
+
+.input-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    width: 100%;
+}
+
+.input__field {
+    background-color: var(--figma-color-bg);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text);
+    border-radius: 2px;
+}
+
+.input__field::selection {
+    background: var(--figma-color-bg-selected);
+    color: var(--figma-color-text-selected);
+}
+
+.input__field:hover {
+    background-color: var(--figma-color-bg-hover);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text-hover);
+}
+
+.input__field:focus {
+    background-color: var(--figma-color-bg-pressed);
+    color: var(--figma-color-text-hover);
+}
+
+.input__field:active {
+    background-color: var(--figma-color-bg-hover);
+    color: var(--figma-color-text-hover);
+}
+
+/* Select */
+
+.select-menu__button {
+    background-color: var(--figma-color-bg);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text);
+    border-radius: 2px;
+}
+
+.select-menu__button:hover {
+    background-color: var(--figma-color-bg-hover);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text-hover);
+}
+
+.select-menu__button:focus {
+    background-color: var(--figma-color-bg-pressed);
+    color: var(--figma-color-text-hover);
+}
+
+.select-menu__label {
+    width: 100%;
+    text-align: left;
+    color: var(--figma-color-text);
+}
+
+.figma-dark .input .icon {
+    opacity: 0.8;
+    filter: invert(1);
+}
+
+.figma-light .input .icon {
+    opacity: 0.5;
+}
+
+.figma-dark .select-menu__caret {
+    opacity: 0.8;
+    margin-left: 0;
+    filter: invert(1);
+}
+
+.figma-light .select-menu__caret {
+    opacity: 0.5;
+    margin-left: 0;
+}
+
+/* Select for object type */
+
+.input__object-type {
+    width: 120px;
+}
+
+/*Toggle */
+
+.switch {
+    width: 30px;
 }
 
 .switch__label {
     background-color: var(--figma-color-bg);
     color: var(--figma-color-text);
+    padding: 0;
+    margin-left: 0;
+    margin-right: 12px;
 }
 
 .switch__label:before {
     background-color: var(--figma-color-bg-secondary);
-    /* border: 1px solid var(--figma-color-border); */
+    border: 1px solid var(--figma-color-text-tertiary);
 }
 
 .switch__toggle:checked + .switch__label:before {
     background-color: var(--figma-color-bg-brand);
+    border: 1px solid var(--figma-color-border-onbrand);
 }
 
 .switch__label:after {
-    /* background-color: var(--figma-color-bg-brand); */
-    /* border: 1px solid var(--figma-color-border-onbrand); */
+    border: 1px solid var(--figma-color-text-tertiary);
+}
+
+.switch__toggle:checked + .switch__label:after {
+    border: 1px solid var(--figma-color-border-onbrand);
+}
+
+/* Buttons */
+
+.button {
+    background-color: var(--figma-color-bg-brand);
+    color: var(--figma-color-text-onbrand);
+}
+
+.button:hover {
+    background-color: var(--figma-color-bg-brand-hover);
+    color: var(--figma-color-text-onbrand);
+}
+
+.flex-grow {
+    flex-direction: row;
+    width: auto;
+    padding: auto;
+    justify-content: center;
 }
