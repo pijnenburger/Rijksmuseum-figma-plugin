@@ -1,3 +1,7 @@
+#react-page {
+    height: 100%;
+}
+
 body {
     background-color: var(--figma-color-bg);
     color: var(--figma-color-text);
@@ -5,15 +9,31 @@ body {
     text-align: left;
     display: flex;
     flex-direction: column;
+    height: 100%;
     /* justify-content: space-between; */
 }
 
+.app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .form {
-    padding: 1rem;
+    padding: 1rem 1rem 0rem 1rem;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: 16px;
+    gap: 8px;
+}
+
+.actions {
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    gap: 8px;
 }
 
 .row {
@@ -38,6 +58,12 @@ body {
     color: var(--figma-color-text);
 }
 
+.divider {
+    height: 1px;
+    width: 100%;
+    background-color: var(--figma-color-bg-secondary);
+}
+
 /* Inputs */
 
 .input {
@@ -57,7 +83,7 @@ body {
 
 .input__field {
     background-color: var(--figma-color-bg);
-    border-color: var(--figma-color-border);
+    border: 1px solid var(--figma-color-border);
     color: var(--figma-color-text);
     border-radius: 2px;
 }
@@ -71,6 +97,26 @@ body {
     background-color: var(--figma-color-bg-hover);
     border-color: var(--figma-color-border);
     color: var(--figma-color-text-hover);
+}
+
+.input__field::placeholder {
+    color: var(--figma-color-text-tertiary);
+}
+
+.input__field:placeholder-shown {
+    border: 1px solid var(--figma-color-border);
+}
+
+.input__field:disabled {
+    background-color: var(--figma-color-bg);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text-secondary);
+}
+
+.input__field:disabled:hover {
+    background-color: var(--figma-color-bg);
+    border-color: var(--figma-color-border);
+    color: var(--figma-color-text-secondary);
 }
 
 .input__field:focus {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useState} from 'react';
 import {Range, getTrackBackground} from 'react-range';
-import {Label, Select, Checkbox, Button} from 'react-figma-plugin-ds';
+import {Label, Input, Checkbox, Button} from 'react-figma-plugin-ds';
 import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import '../styles/ui.css';
 import '../styles/ui.css';
@@ -9,15 +9,20 @@ import '../styles/ui.css';
 declare function require(path: string): any;
 
 const App = ({}) => {
+    const initialText = 'Import artwork';
+    const [buttonText, setButtonText] = useState(initialText);
+
     const step = 1;
     const min = 0;
     const max = 4;
 
     const [data, setData] = useState({
-        values: [3],
-        objectType: 'all',
+        values: [2],
+        search: false,
+        query: '',
+        toppieces: true,
+        onDisplay: true,
         caption: true,
-        toppieces: 'true',
     });
 
     const qualityLabel = {
@@ -38,38 +43,61 @@ const App = ({}) => {
 
     const valuesHandler = (event) => {
         setData({...data, values: event});
-        console.log(event);
+        // console.log(event);
     };
 
-    const typeHandler = (event) => {
-        setData({...data, objectType: event.value});
+    const searchHandler = (event) => {
+        setData({...data, search: event});
+        // console.log(event);
+    };
+
+    const queryHandler = (event) => {
+        setData({...data, query: event});
+        // console.log(event);
     };
 
     const captionHandler = (event) => {
         setData({...data, caption: event});
-        console.log(event);
+        // console.log(event);
     };
 
     const toppiecesHandler = (event) => {
         setData({...data, toppieces: event});
-        console.log(event);
+        // console.log(event);
+    };
+
+    const onDisplayHandler = (event) => {
+        setData({...data, onDisplay: event});
+        // console.log(event);
     };
 
     const onCreate = async () => {
-        let objectFilter = data.objectType === 'all' ? '' : '&type=' + data.objectType;
-        console.log(objectFilter);
+        setButtonText('Loading...');
+
+        // let objectFilter = (data.objectType === "all" ? "" : ("&objecttype=" + data.objectType));
+        let onDisplayFilter = data.onDisplay === true ? '&ondisplay=true' : '';
+        let queryFilter = data.query === '' ? '' : data.search === false ? '' : '&q=' + encodeURI(data.query);
+        let topFilter = '&toppieces=' + data.toppieces.toString();
 
         const firstUrl =
-            'https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx&imgonly=true&toppieces=' +
-            data.toppieces.toString() +
-            '&culture=en&ps=100' +
-            objectFilter;
+            'https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx&imgonly=true&culture=en&ps=100' +
+            topFilter +
+            onDisplayFilter +
+            queryFilter;
         console.log(firstUrl);
-
-        let randomNumber = Math.floor(Math.random() * 100);
 
         let resFirst = await fetch(firstUrl);
         let jsonFirst = await resFirst.json();
+
+        let resCount = jsonFirst.count;
+
+        let randomNumber =
+            data.search === true
+                ? 0
+                : data.query === ''
+                ? Math.floor(Math.random() * (resCount < 100 ? resCount : 100))
+                : 0;
+        console.log(randomNumber);
 
         let collectionID = jsonFirst.artObjects[randomNumber].objectNumber;
         let artworkTitle = jsonFirst.artObjects[randomNumber].longTitle;
@@ -93,8 +121,6 @@ const App = ({}) => {
         const containerWidth = results[0].width;
         const containerHeight = results[0].height;
         const items = results[0].tiles;
-        // console.log(items);
-        // console.log(jsonSecond);
 
         const maxX = Math.max.apply(
             Math,
@@ -108,7 +134,10 @@ const App = ({}) => {
                 return o.y;
             })
         );
-        // console.log(maxX, maxY);
+
+        setTimeout(() => {
+            setButtonText(initialText);
+        }, 4000); // 👈️ change text back after 1 second
 
         // const count = 3;
         parent.postMessage(
@@ -130,112 +159,106 @@ const App = ({}) => {
     };
 
     return (
-        <div className="form">
-            <div className="row">
-                <div className="input-container">
-                    <div className="row">
-                        <Label>Quality</Label>
-                        <Label className="label-right">{qualityLabel[data.values[0]]}</Label>
-                    </div>
-                    <Range
-                        values={data.values}
-                        step={step}
-                        min={min}
-                        max={max}
-                        onChange={valuesHandler}
-                        renderTrack={({props, children}) => (
-                            <div
-                                onMouseDown={props.onMouseDown}
-                                onTouchStart={props.onTouchStart}
-                                style={{
-                                    ...props.style,
-                                    height: '36px',
-                                    display: 'flex',
-                                    width: '100%',
-                                }}
-                            >
+        <div className="app">
+            <div className="form">
+                <div className="row">
+                    <div className="input-container">
+                        <div className="row">
+                            <Label>Quality</Label>
+                            <Label className="label-right">{qualityLabel[data.values[0]]}</Label>
+                        </div>
+                        <Range
+                            values={data.values}
+                            step={step}
+                            min={min}
+                            max={max}
+                            onChange={valuesHandler}
+                            renderTrack={({props, children}) => (
                                 <div
-                                    ref={props.ref}
+                                    onMouseDown={props.onMouseDown}
+                                    onTouchStart={props.onTouchStart}
                                     style={{
-                                        height: '6px',
+                                        ...props.style,
+                                        height: '36px',
+                                        display: 'flex',
                                         width: '100%',
-                                        borderRadius: '4px',
-                                        background: getTrackBackground({
-                                            values: data.values,
-                                            colors: ['var(--figma-color-bg-brand)', 'var(--figma-color-bg-secondary)'],
-                                            min: min,
-                                            max: max,
-                                        }),
-                                        alignSelf: 'center',
                                     }}
                                 >
-                                    {children}
+                                    <div
+                                        ref={props.ref}
+                                        style={{
+                                            height: '6px',
+                                            width: '100%',
+                                            borderRadius: '4px',
+                                            background: getTrackBackground({
+                                                values: data.values,
+                                                colors: [
+                                                    'var(--figma-color-bg-brand)',
+                                                    'var(--figma-color-bg-secondary)',
+                                                ],
+                                                min: min,
+                                                max: max,
+                                            }),
+                                            alignSelf: 'center',
+                                        }}
+                                    >
+                                        {children}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        renderThumb={({props}) => (
-                            <div
-                                {...props}
-                                style={{
-                                    ...props.style,
-                                    height: '16px',
-                                    width: '16px',
-                                    borderRadius: '16px',
-                                    border: '1px solid var(--figma-color-border-onbrand)',
-                                    backgroundColor: 'var(--figma-color-text-onbrand)',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            ></div>
-                        )}
-                    ></Range>
+                            )}
+                            renderThumb={({props}) => (
+                                <div
+                                    {...props}
+                                    style={{
+                                        ...props.style,
+                                        height: '16px',
+                                        width: '16px',
+                                        borderRadius: '16px',
+                                        border: '1px solid var(--figma-color-border-onbrand)',
+                                        backgroundColor: 'var(--figma-color-text-onbrand)',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                ></div>
+                            )}
+                        ></Range>
+                    </div>
                 </div>
+                <div className="divider"></div>
+                <div className="row">
+                    <Label>Free-form text search</Label>
+                    <Checkbox defaultValue={false} type="switch" onChange={searchHandler} />
+                </div>
+                {data.search === true ? (
+                    <Input
+                        className="input__field"
+                        placeholder="Search for"
+                        /*isDisabled={!data.search}*/ onChange={queryHandler}
+                    />
+                ) : null}
+                <div className="divider"></div>
+                <div className="row">
+                    <Label>Toppieces only</Label>
+                    <Checkbox id="test" defaultValue={true} type="switch" onChange={toppiecesHandler} />
+                </div>
+                <div className="divider"></div>
+                <div className="row">
+                    <Label>On display</Label>
+                    <Checkbox defaultValue={true} type="switch" onChange={onDisplayHandler} />
+                </div>
+                <div className="divider"></div>
+                <div className="row">
+                    <Label>Caption {/*{data.caption === true ? "With caption" : "No caption"}*/}</Label>
+                    <Checkbox defaultValue={true} type="switch" onChange={captionHandler} />
+                </div>
+                <div className="divider"></div>
             </div>
-            <div className="row">
-                <Label>Type</Label>
-                <Select
-                    defaultValue={'all'}
-                    onChange={typeHandler}
-                    options={[
-                        {
-                            label: 'All',
-                            value: 'all',
-                        },
-                        {
-                            label: 'Painting',
-                            value: 'painting',
-                        },
-                        {
-                            label: 'Print',
-                            value: 'print',
-                        },
-                        {
-                            label: 'Photograph',
-                            value: 'photograph',
-                        },
-                        {
-                            label: 'Drawing',
-                            value: 'drawing',
-                        },
-                        {
-                            label: 'Sculture',
-                            value: 'sculpture',
-                        },
-                    ]}
-                />
+            <div className="actions">
+                <Button className="primary-btn flex-grow" onClick={onCreate}>
+                    {buttonText}
+                </Button>
             </div>
-            <div className="row">
-                <Label>Toppieces only</Label>
-                <Checkbox defaultValue={true} type="switch" onChange={toppiecesHandler} />
-            </div>
-            <div className="row">
-                <Label>Caption {/*{data.caption === true ? "With caption" : "No caption"}*/}</Label>
-                <Checkbox defaultValue={true} type="switch" onChange={captionHandler} />
-            </div>
-            <Button className="primary-btn flex-grow" onClick={onCreate}>
-                Create Art
-            </Button>
         </div>
     );
 };
