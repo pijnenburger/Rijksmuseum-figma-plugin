@@ -215,7 +215,7 @@ figma.ui.onmessage = async (msg) => {
         } else {
         }
         figma.currentPage.selection = [pictureFrame];
-        figma.viewport.scrollAndZoomIntoView(nodes);
+        // figma.viewport.scrollAndZoomIntoView(nodes);
         figma.closePlugin();
     }
     figma.closePlugin();

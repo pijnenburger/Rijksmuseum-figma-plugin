@@ -31,7 +31,7 @@ body {
 .actions {
     padding: 1rem;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-grow: 0;
     gap: 8px;
 }
@@ -223,6 +223,12 @@ body {
 .button:hover {
     background-color: var(--figma-color-bg-brand-hover);
     color: var(--figma-color-text-onbrand);
+}
+
+.button:disabled,
+.button:disabled:hover {
+    background-color: var(--figma-color-bg-disabled);
+    /* color: var(--figma-color-text-disabled); */
 }
 
 .flex-grow {

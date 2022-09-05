@@ -1,16 +1,16 @@
 import * as React from 'react';
 import {useState} from 'react';
+import {Label, Input, Checkbox, Button, Tip} from 'react-figma-plugin-ds';
 import {Range, getTrackBackground} from 'react-range';
-import {Label, Input, Checkbox, Button} from 'react-figma-plugin-ds';
+import ReactLoading from 'react-loading';
+
 import 'figma-plugin-ds/dist/figma-plugin-ds.css';
-import '../styles/ui.css';
 import '../styles/ui.css';
 
 declare function require(path: string): any;
 
 const App = ({}) => {
     const initialText = 'Import artwork';
-    const [buttonText, setButtonText] = useState(initialText);
 
     const step = 1;
     const min = 0;
@@ -20,9 +20,10 @@ const App = ({}) => {
         values: [2],
         search: false,
         query: '',
-        toppieces: true,
-        onDisplay: true,
+        toppieces: false,
+        onDisplay: false,
         caption: true,
+        loading: false,
     });
 
     const qualityLabel = {
@@ -72,7 +73,8 @@ const App = ({}) => {
     };
 
     const onCreate = async () => {
-        setButtonText('Loading...');
+        // setButtonText('Loading...');
+        setData({...data, loading: true});
 
         // let objectFilter = (data.objectType === "all" ? "" : ("&objecttype=" + data.objectType));
         let onDisplayFilter = data.onDisplay === true ? '&ondisplay=true' : '';
@@ -86,11 +88,14 @@ const App = ({}) => {
             queryFilter;
         console.log(firstUrl);
 
+        // Fetching a list of artwork collections
         let resFirst = await fetch(firstUrl);
         let jsonFirst = await resFirst.json();
 
         let resCount = jsonFirst.count;
 
+        // Random number should not be bigger than the number of results
+        // Random number should be 0 if there is a search query and it's filled in
         let randomNumber =
             data.search === true
                 ? 0
@@ -102,6 +107,7 @@ const App = ({}) => {
         let collectionID = jsonFirst.artObjects[randomNumber].objectNumber;
         let artworkTitle = jsonFirst.artObjects[randomNumber].longTitle;
 
+        // Fetching the artworks details
         const collectionUrl =
             'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '?key=m6fzmvxx&culture=en';
         let resSecond = await fetch(collectionUrl);
@@ -109,6 +115,7 @@ const App = ({}) => {
 
         let label = jsonSecond.artObject;
 
+        // Fetching the image tiles
         const fetchUrl = 'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '/tiles?key=m6fzmvxx';
 
         let res = await fetch(fetchUrl);
@@ -135,11 +142,10 @@ const App = ({}) => {
             })
         );
 
-        setTimeout(() => {
-            setButtonText(initialText);
-        }, 4000); // 👈️ change text back after 1 second
+        // setTimeout(() => {
+        // setData({...data, loading: false});
+        // }, 4000); // 👈️ change text back after 4 seconds
 
-        // const count = 3;
         parent.postMessage(
             {
                 pluginMessage: {
@@ -240,23 +246,32 @@ const App = ({}) => {
                 <div className="divider"></div>
                 <div className="row">
                     <Label>Toppieces only</Label>
-                    <Checkbox id="test" defaultValue={true} type="switch" onChange={toppiecesHandler} />
+                    <Checkbox id="test" defaultValue={data.toppieces} type="switch" onChange={toppiecesHandler} />
                 </div>
                 <div className="divider"></div>
                 <div className="row">
                     <Label>On display</Label>
-                    <Checkbox defaultValue={true} type="switch" onChange={onDisplayHandler} />
+                    <Checkbox defaultValue={data.onDisplay} type="switch" onChange={onDisplayHandler} />
                 </div>
                 <div className="divider"></div>
                 <div className="row">
                     <Label>Caption {/*{data.caption === true ? "With caption" : "No caption"}*/}</Label>
-                    <Checkbox defaultValue={true} type="switch" onChange={captionHandler} />
+                    <Checkbox defaultValue={data.caption} type="switch" onChange={captionHandler} />
                 </div>
                 <div className="divider"></div>
             </div>
             <div className="actions">
-                <Button className="primary-btn flex-grow" onClick={onCreate}>
-                    {buttonText}
+                {/* Artwork provided by Rijksmuseum Amsterdam */}
+                <Button
+                    className="primary-btn flex-grow"
+                    onClick={onCreate}
+                    isDisabled={data.loading === false ? false : true}
+                >
+                    {data.loading === false ? (
+                        initialText
+                    ) : (
+                        <ReactLoading type={'bubbles'} color={'var(--figma-color-text)'} height={32} width={32} />
+                    )}
                 </Button>
             </div>
         </div>
