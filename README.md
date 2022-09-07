@@ -1,4 +1,4 @@
-![Rijksmuseum Plugin Icon](/Artwork/Icon@2x.png)
+![Rijksmuseum Plugin Icon](/Artwork/Icon.png)
 
 
 # Rijksmuseum Tour
