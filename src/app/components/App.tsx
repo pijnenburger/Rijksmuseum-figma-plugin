@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useState} from 'react';
-import {Label, Input, Checkbox, Button, Tip} from 'react-figma-plugin-ds';
+import {Label, Input, Checkbox, Button, Icon} from 'react-figma-plugin-ds';
 import {Range, getTrackBackground} from 'react-range';
 import ReactLoading from 'react-loading';
 
@@ -22,6 +22,7 @@ const App = ({}) => {
         query: '',
         toppieces: false,
         onDisplay: false,
+        framed: false,
         caption: true,
         loading: false,
     });
@@ -49,31 +50,29 @@ const App = ({}) => {
 
     const searchHandler = (event) => {
         setData({...data, search: event});
-        // console.log(event);
     };
 
     const queryHandler = (event) => {
         setData({...data, query: event});
-        // console.log(event);
     };
 
     const captionHandler = (event) => {
         setData({...data, caption: event});
-        // console.log(event);
+    };
+
+    const framedHandler = (event) => {
+        setData({...data, framed: event});
     };
 
     const toppiecesHandler = (event) => {
         setData({...data, toppieces: event});
-        // console.log(event);
     };
 
     const onDisplayHandler = (event) => {
         setData({...data, onDisplay: event});
-        // console.log(event);
     };
 
     const onCreate = async () => {
-        // setButtonText('Loading...');
         setData({...data, loading: true});
 
         // let objectFilter = (data.objectType === "all" ? "" : ("&objecttype=" + data.objectType));
@@ -102,7 +101,7 @@ const App = ({}) => {
                 : data.query === ''
                 ? Math.floor(Math.random() * (resCount < 100 ? resCount : 100))
                 : 0;
-        console.log(randomNumber);
+        // console.log(randomNumber);
 
         let collectionID = jsonFirst.artObjects[randomNumber].objectNumber;
         let artworkTitle = jsonFirst.artObjects[randomNumber].longTitle;
@@ -142,10 +141,6 @@ const App = ({}) => {
             })
         );
 
-        // setTimeout(() => {
-        // setData({...data, loading: false});
-        // }, 4000); // 👈️ change text back after 4 seconds
-
         parent.postMessage(
             {
                 pluginMessage: {
@@ -158,6 +153,7 @@ const App = ({}) => {
                     artworkTitle,
                     label,
                     caption: data.caption,
+                    framed: data.framed,
                 },
             },
             '*'
@@ -233,29 +229,41 @@ const App = ({}) => {
                 </div>
                 <div className="divider"></div>
                 <div className="row">
-                    <Label>Free-form text search</Label>
+                    <Icon color="black3" name="search" />
+                    <Label>Search</Label>
                     <Checkbox defaultValue={false} type="switch" onChange={searchHandler} />
                 </div>
                 {data.search === true ? (
                     <Input
                         className="input__field"
-                        placeholder="Search for"
-                        /*isDisabled={!data.search}*/ onChange={queryHandler}
+                        placeholder="Search for artist, style or century"
+                        onChange={queryHandler}
                     />
                 ) : null}
                 <div className="divider"></div>
                 <div className="row">
+                    <Icon color="black3" name="star-off" />
+
                     <Label>Toppieces only</Label>
                     <Checkbox id="test" defaultValue={data.toppieces} type="switch" onChange={toppiecesHandler} />
                 </div>
                 <div className="divider"></div>
                 <div className="row">
+                    <Icon color="black3" name="image" />
+
                     <Label>On display</Label>
                     <Checkbox defaultValue={data.onDisplay} type="switch" onChange={onDisplayHandler} />
                 </div>
                 <div className="divider"></div>
                 <div className="row">
-                    <Label>Caption {/*{data.caption === true ? "With caption" : "No caption"}*/}</Label>
+                    <Icon color="black3" name="frame" />
+                    <Label>With frame</Label>
+                    <Checkbox defaultValue={data.framed} type="switch" onChange={framedHandler} />
+                </div>
+                <div className="divider"></div>
+                <div className="row">
+                    <Icon color="black3" name="draft" />
+                    <Label>With description</Label>
                     <Checkbox defaultValue={data.caption} type="switch" onChange={captionHandler} />
                 </div>
                 <div className="divider"></div>

@@ -1,53 +1,44 @@
-figma.showUI(__html__, {width: 300, height: 420, themeColors: true /* other options */});
+figma.showUI(__html__, {width: 340, height: 460, themeColors: true /* other options */});
 
-// restore previous size
-// figma.clientStorage.getAsync('size').then(size => {
-//   if(size) figma.ui.resize(size.w,size.h);
-// }).catch(err=>{});
-// figma.ui.onmessage = msg => {
-//   switch (msg.type) {
-//     case "resize":
-//       figma.ui.resize(msg.size.w,msg.size.h);
-//       figma.clientStorage.setAsync('size', msg.size).catch(err=>{});// save size
-//       break;
-//   }
-// };
+const fontList = [
+    {family: 'Inter', style: 'Regular'},
+    {family: 'Inter', style: 'Italic'},
+    {family: 'Inter', style: 'Medium'},
+    {family: 'Inter', style: 'Bold'},
+];
 
 let currentViewX = figma.viewport.center.x;
 let currentViewY = figma.viewport.center.y;
 
 figma.ui.onmessage = async (msg) => {
     if (msg.type === 'create') {
+        await Promise.all(fontList.map((font) => figma.loadFontAsync(font)));
         const nodes = [];
         const items = JSON.parse(msg.items);
         const count = items.length;
-        // console.log(items);
+
         const baseSize = 512;
         const size = 248;
-        figma.loadFontAsync({family: 'Inter', style: 'Regular'});
-        figma.loadFontAsync({family: 'Inter', style: 'Italic'});
-        figma.loadFontAsync({family: 'Inter', style: 'Medium'});
-        figma.loadFontAsync({family: 'Inter', style: 'Bold'});
 
         const container = figma.createFrame();
         container.fills = [{type: 'SOLID', color: {r: 0, g: 0, b: 0}, opacity: 0}];
         figma.currentPage.appendChild(container);
+
         container.resize(msg.containerWidth / (baseSize / size), msg.containerHeight / (baseSize / size));
         container.name = 'Artwork';
 
         for (let i = 0; i < count; i++) {
             const item = items[i];
-            const imageOld = item.url;
-            const image = imageOld.replace('http', 'https');
-
-            const imageInt = (await fetch(image).then((r) => r.arrayBuffer())) as Uint8Array;
-            let imageHash = figma.createImage(new Uint8Array(imageInt)).hash;
+            const imageOldUrl = item.url;
+            const imageUrl = imageOldUrl.replace('http', 'https');
 
             const frame = figma.createFrame();
-            frame.fills = [
-                {type: 'SOLID', color: {r: 0, g: 0, b: 0}, opacity: 0},
-                {type: 'IMAGE', scaleMode: 'FILL', imageHash},
-            ];
+            await figma.createImageAsync(imageUrl).then(async (image: Image) => {
+                frame.fills = [
+                    {type: 'SOLID', color: {r: 0, g: 0, b: 0}, opacity: 0},
+                    {type: 'IMAGE', scaleMode: 'FILL', imageHash: image.hash},
+                ];
+            });
 
             const finalWidth = msg.containerWidth / (baseSize / size) - item.x * size;
             const finalHeight = msg.containerHeight / (baseSize / size) - item.y * size;
@@ -57,7 +48,6 @@ figma.ui.onmessage = async (msg) => {
             frame.resize(frameWidth, frameHeight);
             frame.x = item.x * size;
             frame.y = item.y * size;
-            // console.log(frame.height, frame.width)
 
             container.appendChild(frame);
         }
@@ -70,96 +60,99 @@ figma.ui.onmessage = async (msg) => {
         pictureFrame.layoutMode = 'HORIZONTAL';
         pictureFrame.layoutAlign = 'STRETCH';
         pictureFrame.counterAxisSizingMode = 'AUTO';
-        pictureFrame.verticalPadding = 48;
-        pictureFrame.horizontalPadding = 48;
-        pictureFrame.strokes = [{type: 'SOLID', color: {r: 0.47, g: 0.27, b: 0.13}, opacity: 1}];
-        pictureFrame.strokeWeight = 8;
-        pictureFrame.strokeCap = 'ROUND';
-        pictureFrame.dashPattern = [12, 24];
-        pictureFrame.strokeAlign = 'OUTSIDE';
-        pictureFrame.fills = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}, opacity: 1}];
-        pictureFrame.effects = [
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.25},
-                offset: {x: -12, y: -12},
-                radius: 12,
-                spread: 24,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0.62, g: 0.35, b: 0.17, a: 1},
-                offset: {x: 0, y: 0},
-                radius: 0,
-                spread: 32,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0.83, g: 0.55, b: 0.37, a: 1},
-                offset: {x: 0, y: 0},
-                radius: 0,
-                spread: 24,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0.47, g: 0.27, b: 0.13, a: 1},
-                offset: {x: 0, y: 0},
-                radius: 0,
-                spread: 16,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'DROP_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.08},
-                offset: {x: 0, y: 48},
-                radius: 40,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'DROP_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.08},
-                offset: {x: 0, y: 48},
-                radius: 40,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'DROP_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.08},
-                offset: {x: 0, y: 64},
-                radius: 48,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-        ];
+        if (msg.framed) {
+            pictureFrame.verticalPadding = 48;
+            pictureFrame.horizontalPadding = 48;
+            pictureFrame.strokes = [{type: 'SOLID', color: {r: 0.47, g: 0.27, b: 0.13}, opacity: 1}];
+            pictureFrame.strokeWeight = 8;
+            pictureFrame.strokeCap = 'ROUND';
+            pictureFrame.dashPattern = [12, 24];
+            pictureFrame.strokeAlign = 'OUTSIDE';
+            pictureFrame.fills = [{type: 'SOLID', color: {r: 1, g: 1, b: 1}, opacity: 1}];
+            pictureFrame.effects = [
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.25},
+                    offset: {x: -12, y: -12},
+                    radius: 12,
+                    spread: 24,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0.62, g: 0.35, b: 0.17, a: 1},
+                    offset: {x: 0, y: 0},
+                    radius: 0,
+                    spread: 32,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0.83, g: 0.55, b: 0.37, a: 1},
+                    offset: {x: 0, y: 0},
+                    radius: 0,
+                    spread: 24,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0.47, g: 0.27, b: 0.13, a: 1},
+                    offset: {x: 0, y: 0},
+                    radius: 0,
+                    spread: 16,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'DROP_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.08},
+                    offset: {x: 0, y: 48},
+                    radius: 40,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'DROP_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.08},
+                    offset: {x: 0, y: 48},
+                    radius: 40,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'DROP_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.08},
+                    offset: {x: 0, y: 64},
+                    radius: 48,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+            ];
 
-        container.effects = [
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.2},
-                offset: {x: -8, y: -8},
-                radius: 4,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-            {
-                type: 'INNER_SHADOW',
-                color: {r: 0, g: 0, b: 0, a: 0.4},
-                offset: {x: -16, y: -16},
-                radius: 32,
-                spread: 0,
-                visible: true,
-                blendMode: 'NORMAL',
-            },
-        ];
+            container.effects = [
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.2},
+                    offset: {x: -8, y: -8},
+                    radius: 4,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+                {
+                    type: 'INNER_SHADOW',
+                    color: {r: 0, g: 0, b: 0, a: 0.2},
+                    offset: {x: 4, y: 4},
+                    radius: 8,
+                    spread: 0,
+                    visible: true,
+                    blendMode: 'NORMAL',
+                },
+            ];
+        } else {
+        }
 
         pictureFrame.appendChild(container);
         nodes.push(pictureFrame);
@@ -215,7 +208,7 @@ figma.ui.onmessage = async (msg) => {
         } else {
         }
         figma.currentPage.selection = [pictureFrame];
-        // figma.viewport.scrollAndZoomIntoView(nodes);
+        // figma.viewport.scrollAndZoomIntoView([pictureFrame]);
         figma.closePlugin();
     }
     figma.closePlugin();
